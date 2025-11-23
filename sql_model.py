@@ -11,7 +11,7 @@ class Book(SQLModel, table = True):
   pages :int
   price :float
 
-# SQLModel.metadata.drop_all(engine)
+SQLModel.metadata.drop_all(engine)
 SQLModel.metadata.create_all(engine)
 
 def add_book(title, author, pages, price):
@@ -27,7 +27,7 @@ def show_all_books():
   with Session(engine) as session:
     books = session.exec(select(Book)).all()
     if not books:
-      print('books is empty!')
+      print('books list is empty!')
       return
     for book in books:
       print(f'ID: {book.id}\ntitle: {book.title}\nauthor: {book.author}\npages: {book.pages}\nprice: {book.price}')
@@ -44,6 +44,34 @@ def get_book_by_id(book_id):
       print('book not found !')
 
 def update_book_price(book_id, new_price):
-  pass
+  with Session(engine) as session:
+    try:
+      book = session.exec(select(Book).where(Book.id == book_id)).first()
+      book.price = new_price
+      session.commit()
+      print('price updated !')
+    except:
+      print('book not found !')
+
+def delete_book(book_id):
+  with Session(engine) as session:
+    try:
+      book = session.exec(select(Book).where(Book.id == book_id)).first()
+      session.delete(book)
+      session.commit()
+      print('book deleted !')
+    except:
+      print('book not found !')
+
+def count_books():
+  with Session(engine) as session:
+    books = session.exec(select(Book)).all()
+    print(f'number of books: {len(books)}')
+
+
+
+# update_book_price(4, 50)
 show_all_books()
-get_book_by_id(4)
+# delete_book(4)
+# add_book('Tora', 'Gad', 450, 35)
+count_books()
