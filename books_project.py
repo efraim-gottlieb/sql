@@ -11,7 +11,7 @@ class Book(SQLModel, table = True):
   pages :int
   price :float
 
-SQLModel.metadata.drop_all(engine)
+# SQLModel.metadata.drop_all(engine)
 SQLModel.metadata.create_all(engine)
 
 def add_book(title, author, pages, price):
@@ -28,16 +28,16 @@ def show_all_books():
     books = session.exec(select(Book)).all()
     if not books:
       print('books list is empty!')
-      return
-    for book in books:
-      print(f'ID: {book.id}\ntitle: {book.title}\nauthor: {book.author}\npages: {book.pages}\nprice: {book.price}')
-      print('-' *10)
+    else:
+      for book in books:
+        print(f'ID: {book.id}\ntitle: {book.title}\nauthor: {book.author}\npages: {book.pages}\nprice: {book.price}')
+        print('-' *10)
 
 def get_book_by_id(book_id):
   book = None
   with Session(engine) as session:
     try:
-      book = session.get_one(Book,book_id)
+      book = session.get(Book,book_id)
       print(f'ID: {book.id}\ntitle: {book.title}\nauthor: {book.author}\npages: {book.pages}\nprice: {book.price}')
       return
     except:
@@ -68,10 +68,27 @@ def count_books():
     books = session.exec(select(Book)).all()
     print(f'number of books: {len(books)}')
 
+def add_books(books: list[object]):
+  if books:
+    for book in books:
+      add_book(book.title, book.author, book.pages, book.price)
+      print(f'added {len(books)} books !')
+  else:
+    print('no books to add !')
+
+def book_exists(title):
+  with Session(engine) as session:
+      return bool(session.exec(select(Book).where(Book.title == title)).first())
+
+
 
 
 # update_book_price(4, 50)
-show_all_books()
-# delete_book(4)
+# show_all_books()
+# # delete_book(4)
 # add_book('Tora', 'Gad', 450, 35)
-count_books()
+# count_books()
+# a  = Book(title= 'mishna', author='tanaim', pages='450', price='10')
+# b  = Book(title= 'mishna2', author='tanaim', pages='670', price='50')
+# add_books([])
+print(book_exists('mishna'))
